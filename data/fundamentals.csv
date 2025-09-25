@@ -1,0 +1,12 @@
+market,ticker,peg,pe,debt_to_equity,revenue_growth,eps_growth,current_ratio,gross_margin,category
+US,AAPL,1.90,28.00,1.50,0.11,0.12,1.36,0.38,stalwart
+US,MSFT,2.00,34.00,0.60,0.12,0.15,1.90,0.68,stalwart
+US,NVDA,2.10,50.00,0.45,0.30,0.35,6.00,0.58,fast-grower
+US,COST,3.00,35.00,0.60,0.15,0.13,1.10,0.13,stalwart
+US,DLTR,1.10,18.00,0.45,0.12,0.11,1.50,0.30,stalwart
+US,NVR,0.90,16.00,0.42,0.10,0.12,2.80,0.27,stalwart
+CN,000333.SZ,1.20,17.00,0.35,0.11,0.12,1.70,0.29,stalwart
+CN,000651.SZ,1.60,12.00,0.60,0.05,0.06,1.30,0.21,turnaround
+CN,002594.SZ,1.40,25.00,0.45,0.28,0.22,1.30,0.27,fast-grower
+CN,300750.SZ,1.80,40.00,0.55,0.40,0.32,1.20,0.18,fast-grower
+CN,600519.SS,1.40,34.00,0.30,0.14,0.15,2.10,0.90,stalwart
