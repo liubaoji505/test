@@ -17,6 +17,11 @@ def test_us_backtest_selection_and_returns(period):
     assert pytest.approx(result.final_value, rel=1e-9) == 1_832_539.6825396826
     assert pytest.approx(result.total_return, rel=1e-9) == 0.8325396825396826
     assert pytest.approx(result.annualized_return, rel=1e-9) == 0.12887722758928866
+    assert result.monthly_annualized[0][0] == start
+    assert result.monthly_annualized[0][1] == 0.0
+    assert result.monthly_annualized[-1][0] == end
+    assert pytest.approx(result.monthly_annualized[-1][1], rel=1e-9) == result.annualized_return
+    assert len(result.monthly_annualized) == 61
 
 
 def test_cn_backtest_selection_and_returns(period):

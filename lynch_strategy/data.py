@@ -59,7 +59,7 @@ def load_fundamentals() -> Dict[Tuple[str, str], FundamentalRecord]:
 
 
 def load_prices() -> Dict[Tuple[str, str], List[PriceRecord]]:
-    """Load the annual price snapshots from ``data/prices.csv``."""
+    """Load the price snapshots from ``data/prices.csv``."""
 
     path = DATA_DIR / "prices.csv"
     prices: Dict[Tuple[str, str], List[PriceRecord]] = {}

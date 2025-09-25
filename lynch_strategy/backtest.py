@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from calendar import monthrange
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Dict, Iterable, List, Sequence, Tuple
@@ -22,6 +23,7 @@ class BacktestResult:
     timeline: List[Tuple[datetime, float]]
     evaluations: Dict[str, Evaluation]
     criteria: LynchCriteria
+    monthly_annualized: List[Tuple[datetime, float]]
 
 
 class BacktestError(RuntimeError):
@@ -78,6 +80,63 @@ def _build_timeline(
     return timeline
 
 
+def _iter_month_end_dates(start: datetime, end: datetime) -> Iterable[datetime]:
+    """Yield month-end dates between ``start`` and ``end`` (inclusive)."""
+
+    year, month = start.year, start.month
+    while True:
+        last_day = monthrange(year, month)[1]
+        month_end = datetime(year, month, last_day)
+        if month_end >= end:
+            yield end
+            break
+        if month_end >= start:
+            yield month_end
+        if month == 12:
+            year += 1
+            month = 1
+        else:
+            month += 1
+
+
+def _portfolio_value_on(
+    date: datetime,
+    price_map: Dict[str, Sequence[PriceRecord]],
+    holdings: Dict[str, float],
+) -> float:
+    value = 0.0
+    for ticker, shares in holdings.items():
+        history = [record for record in price_map[ticker] if record.date <= date]
+        if history:
+            value += shares * history[-1].close
+    return value
+
+
+def _build_monthly_annualized(
+    price_map: Dict[str, Sequence[PriceRecord]],
+    holdings: Dict[str, float],
+    start: datetime,
+    end: datetime,
+    initial_capital: float,
+) -> List[Tuple[datetime, float]]:
+    """Compute the annualized return for each month between ``start`` and ``end``."""
+
+    series: List[Tuple[datetime, float]] = [(start, initial_capital)]
+    for date in _iter_month_end_dates(start, end):
+        value = _portfolio_value_on(date, price_map, holdings)
+        series.append((date, value))
+
+    annualized: List[Tuple[datetime, float]] = []
+    for date, value in series:
+        elapsed_years = (date - start).days / 365.25
+        if elapsed_years <= 0:
+            annualized.append((date, 0.0))
+            continue
+        growth = value / initial_capital
+        annualized.append((date, growth ** (1.0 / elapsed_years) - 1.0))
+    return annualized
+
+
 def run_backtest_for_market(
     market: str,
     start: datetime,
@@ -125,6 +184,9 @@ def run_backtest_for_market(
     annualized_return = (1.0 + total_return) ** (1.0 / years) - 1.0 if years > 0 else 0.0
 
     timeline = _build_timeline(price_map, holdings, start, end)
+    monthly_annualized = _build_monthly_annualized(
+        price_map, holdings, start, end, initial_capital
+    )
 
     return BacktestResult(
         market=market.upper(),
@@ -136,4 +198,5 @@ def run_backtest_for_market(
         timeline=timeline,
         evaluations=evaluations,
         criteria=criteria,
+        monthly_annualized=monthly_annualized,
     )
